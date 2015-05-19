@@ -126,9 +126,6 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
     game = self.game_of(m)
     return unless game && game.started? && game.has_player?(m.user)
 
-    old_desc = game.decision_description
-    old_players = game.choice_names.keys
-
     success, error = game.take_choice(m.user, command, args || '')
 
     if success
@@ -139,9 +136,7 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
         chan.send(info)
         self.start_new_game(game)
       else
-        desc = game.decision_description
-        players = game.choice_names.keys
-        announce_decision(game) if desc != old_desc || players != old_players
+        announce_decision(game)
       end
     else
       m.user.send(error)
