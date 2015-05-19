@@ -77,9 +77,7 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
   end
 
   def do_replace_user(game, replaced_user, replacing_user)
-    return unless game.started?
-    player = game.find_player(replacing_user)
-    m.user.send("Game #{game.id} Turn #{game.turn_number}: #{player_info(player, show_secrets: true)}")
+    tell_cards(game, replacing_user) if game.started?
   end
 
   def bg3po_invite_command(channel_name)
@@ -96,6 +94,11 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
     channel.devoice(user)
     # I'm astounded that I can access my parent's @variable
     @user_games.delete(user)
+  end
+
+  def tell_cards(game, user)
+    player = game.find_player(user)
+    user.send("Game #{game.id} Turn #{game.turn_number}: #{player_info(player, show_secrets: true)}")
   end
 
   #--------------------------------------------------------------------------------
@@ -151,9 +154,7 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
   def whoami(m)
     game = self.game_of(m)
     return unless game && game.started? && game.has_player?(m.user)
-
-    player = game.find_player(m.user)
-    m.user.send("Game #{game.id} Turn #{game.turn_number}: #{player_info(player, show_secrets: true)}")
+    tell_cards(game, m.user)
   end
 
   def table(m, channel_name = nil)
