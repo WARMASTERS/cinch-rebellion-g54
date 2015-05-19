@@ -36,6 +36,10 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
       @bot.player_died(user, @chan)
     end
 
+    def new_cards(user)
+      @bot.tell_cards(@game, user)
+    end
+
     def puts(msg)
       @chan.send(msg)
     end
