@@ -228,7 +228,7 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
   #--------------------------------------------------------------------------------
 
   def list_possible_roles(m)
-    m.reply(::RebellionG54::Role::ALL)
+    m.reply(::RebellionG54::Role::ALL.keys.map(&:to_s))
   end
 
   def get_roles(m, channel_name = nil)
