@@ -179,7 +179,9 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
   def table_info(game, show_secrets: false)
     game.each_player.map { |player|
       "#{player.user.name}: #{player_info(player, show_secrets: show_secrets)}"
-    }.join("\n")
+    }.concat(game.each_dead_player.map { |player|
+      "#{player.user.name}: #{player_info(player, show_secrets: show_secrets)}"
+    }).join("\n")
   end
 
   def player_info(player, show_secrets: false)
