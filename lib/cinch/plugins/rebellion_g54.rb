@@ -26,7 +26,8 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
   common_commands
 
   class ChannelOutputter
-    def initialize(c)
+    def initialize(bot, c)
+      @bot = bot
       @chan = c
     end
 
@@ -59,7 +60,7 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
       player.user.send("Game #{game.id} starting hand: #{player_info(player, show_secrets: true)}")
     }
 
-    game.output_streams << ChannelOutputter.new(Channel(game.channel_name))
+    game.output_streams << ChannelOutputter.new(self, Channel(game.channel_name))
     announce_decision(game)
   end
 
