@@ -107,9 +107,17 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
     success, error = game.take_choice(m.user, command, args || '')
 
     if success
-      desc = game.decision_description
-      players = game.choice_names.keys
-      announce_decision(game) if desc != old_desc || players != old_players
+      if game.winner
+        chan = Channel(game.channel_name)
+        chan.send("Congratulations! #{game.winner.name} is the winner!!!")
+        info = table_info(game, show_secrets: true)
+        chan.send(info)
+        self.start_new_game(game)
+      else
+        desc = game.decision_description
+        players = game.choice_names.keys
+        announce_decision(game) if desc != old_desc || players != old_players
+      end
     else
       m.user.send(error)
     end
