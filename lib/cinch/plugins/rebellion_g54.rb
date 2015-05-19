@@ -31,6 +31,10 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
       @chan = c
     end
 
+    def player_died(user)
+      @bot.player_died(user, @chan)
+    end
+
     def puts(msg)
       @chan.send(msg)
     end
@@ -79,6 +83,18 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
 
   def bg3po_invite_command(channel_name)
     # Nah, I don't want to do bg3po
+  end
+
+  #--------------------------------------------------------------------------------
+  # Other player management
+  #--------------------------------------------------------------------------------
+
+  def player_died(user, channel)
+    # Can't use remove_user_from_game because remove would throw an exception.
+    # Instead, just do the same thing it does...
+    channel.devoice(user)
+    # I'm astounded that I can access my parent's @variable
+    @user_games.delete(user)
   end
 
   #--------------------------------------------------------------------------------
