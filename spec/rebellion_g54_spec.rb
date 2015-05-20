@@ -244,6 +244,21 @@ RSpec.describe Cinch::Plugins::RebellionG54 do
     end
   end
 
+  describe 'status' do
+    it 'responds with no players' do
+      replies = get_replies_text(msg('!status', channel: channel1))
+      expect(replies).to be_all { |x| x =~ /no game/i }
+      expect(replies.drop(1)).to be_empty
+    end
+
+    it 'responds with one player' do
+      force_join(msg('!join'))
+      replies = get_replies_text(msg('!status', channel: channel1))
+      expect(replies).to be_all { |x| x =~ /1 player/i }
+      expect(replies.drop(1)).to be_empty
+    end
+  end
+
   describe 'help' do
     let(:help_replies) {
       get_replies_text(make_message(bot, '!help', nick: player1))
