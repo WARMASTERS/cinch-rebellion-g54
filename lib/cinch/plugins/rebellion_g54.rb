@@ -110,13 +110,8 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
   #--------------------------------------------------------------------------------
 
   def announce_decision(game)
-    desc = game.decision_description
-    players = game.choice_names.keys
-    choices = game.choice_names.values.flatten.uniq
-    Channel(game.channel_name).send(
-      "Game #{game.id} Turn #{game.turn_number} - #{desc} - Waiting on #{players.join(', ')} to pick between #{choices.join(', ')}"
-    )
-    players.each { |p|
+    Channel(game.channel_name).send(decision_info(game, show_choices: true))
+    game.choice_names.keys.each { |p|
       explanations = game.choice_explanations(p)
       User(p).send(explanations.map { |e| "[#{e}]" }.join(' '))
     }
@@ -182,9 +177,7 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
       return
     end
 
-    desc = game.decision_description
-    players = game.choice_names.keys
-    m.reply("Game #{game.id} Turn #{game.turn_number} - #{desc} - Waiting on #{players.join(', ')}")
+    m.reply(decision_info(game))
   end
 
   def peek(m)
@@ -205,6 +198,13 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
   #--------------------------------------------------------------------------------
   # Help for player/table info
   #--------------------------------------------------------------------------------
+
+  def decision_info(game, show_choices: false)
+    desc = game.decision_description
+    players = game.choice_names.keys
+    choices = show_choices ? "To pick between #{game.choice_names.values.flatten.uniq.join(', ')}" : ''
+    "Game #{game.id} Turn #{game.turn_number} - #{desc} - Waiting on #{players.join(', ')}#{choices}"
+  end
 
   def table_info(game, show_secrets: false)
     game.each_player.map { |player|
