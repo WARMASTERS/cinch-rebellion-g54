@@ -77,16 +77,10 @@ RSpec.describe Cinch::Plugins::RebellionG54 do
     m
   end
 
-  # Doh this sucks.
-  # It's because when joining a game, bot checks that you're in that channel
-  # I can't even stub out :Channel because it's on the parent, apparently?
-  # So I'll just have to do whatever game_bot does.
-  def force_join(message)
-    games = plugin.instance_variable_get(:@games)
-    game = games[message.channel]
-    game.add_player(message.user)
-    user_games = plugin.instance_variable_get(:@user_games)
-    user_games[message.user] = game
+  def join(message)
+    expect(message.channel).to receive(:has_user?).with(message.user).and_return(true)
+    expect(message.channel).to receive(:voice).with(message.user)
+    get_replies(message)
   end
 
   it 'makes a test bot' do
@@ -95,8 +89,8 @@ RSpec.describe Cinch::Plugins::RebellionG54 do
 
   context 'in a game' do
     before :each do
-      force_join(msg('!join'))
-      force_join(msg('!join', nick: player2))
+      join(msg('!join'))
+      join(msg('!join', nick: player2))
       allow(plugin).to receive(:Channel).with(channel1).and_return(chan)
       games = plugin.instance_variable_get(:@games)
       game = games[channel1]
@@ -341,7 +335,7 @@ RSpec.describe Cinch::Plugins::RebellionG54 do
     end
 
     it 'responds with one player' do
-      force_join(msg('!join'))
+      join(msg('!join'))
       replies = get_replies_text(msg('!status', channel: channel1))
       expect(replies).to be_all { |x| x =~ /1 player/i }
       expect(replies.drop(1)).to be_empty
