@@ -15,6 +15,11 @@ class MessageReceiver
     @messages = []
   end
 
+  def devoice(_)
+  end
+  def moderated=(_)
+  end
+
   def send(m)
     @messages << m
   end
