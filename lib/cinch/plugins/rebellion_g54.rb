@@ -147,7 +147,11 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
     game = self.game_of(m)
     return unless game && game.started? && game.has_player?(m.user)
     explanations = game.choice_explanations(m.user)
-    m.user.send(explanations.map { |e| "[#{e}]" }.join(' '))
+    if explanations.empty?
+      m.user.send("You don't need to make any choices right now.")
+    else
+      m.user.send(explanations.map { |e| "[#{e}]" }.join(' '))
+    end
   end
 
   def whoami(m)
