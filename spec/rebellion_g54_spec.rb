@@ -149,6 +149,46 @@ RSpec.describe Cinch::Plugins::RebellionG54 do
         end
       end
     end
+
+    describe 'choices' do
+      it 'shows choices for p1' do
+        choices = get_replies_text(msg('!choices', nick: p1))
+        expect(choices).to_not be_empty
+        expect(choices.first).to_not include("don't need to make")
+      end
+
+      it 'shows no choices for p2' do
+        expect(get_replies_text(msg('!choices', nick: p2))).to be == [
+          "You don't need to make any choices right now."
+        ]
+      end
+    end
+
+    describe 'whoami' do
+      it 'tells p1 characters' do
+        expect(get_replies_text(msg('!me'))).to_not be_empty
+      end
+    end
+
+    describe 'table' do
+      it 'shows the table' do
+        expect(get_replies_text(msg('!table'))).to_not be_empty
+      end
+    end
+
+    describe 'status' do
+      it 'shows the status' do
+        expect(get_replies_text(msg('!status'))).to_not be_empty
+      end
+    end
+
+    describe 'get_roles' do
+      it '!roles shows roles' do
+        replies = get_replies_text(msg('!roles'))
+        expect(replies).to_not be_empty
+        expect(replies.first).to be =~ /Game.*roles/
+      end
+    end
   end
 
   describe 'get_roles' do
