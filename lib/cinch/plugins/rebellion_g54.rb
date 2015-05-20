@@ -180,7 +180,7 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
     m.reply(decision_info(game))
   end
 
-  def peek(m)
+  def peek(m, channel_name = nil)
     return unless self.is_mod?(m.user)
     game = self.game_of(m, channel_name, ['peek', '!peek'])
     return unless game && game.started?
