@@ -203,6 +203,20 @@ RSpec.describe Cinch::Plugins::RebellionG54 do
       end
     end
 
+    describe 'reset' do
+      it 'lets a mod reset' do
+        chan.messages.clear
+        get_replies_text(authed_msg('!reset', nick: player1))
+        expect(chan.messages).to be_any { |x| x.include?('reset') }
+      end
+
+      it 'does not respond to a non-mod' do
+        chan.messages.clear
+        get_replies_text(authed_msg('!reset', nick: player2))
+        expect(chan.messages).to be_empty
+      end
+    end
+
     describe 'peek' do
       it 'calls a playing mod a cheater' do
         expect(get_replies_text(authed_msg('!peek', nick: player1))).to be == ['Cheater!!!']
