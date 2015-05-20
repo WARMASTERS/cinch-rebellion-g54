@@ -21,6 +21,9 @@ class MessageReceiver
     @messages = []
   end
 
+  def voiced
+    []
+  end
   def devoice(_)
   end
   def moderated=(_)
