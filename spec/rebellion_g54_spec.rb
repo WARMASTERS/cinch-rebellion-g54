@@ -49,6 +49,7 @@ RSpec.describe Cinch::Plugins::RebellionG54 do
   let(:opts) {{
     :channels => [channel1],
     :settings => '/dev/null',
+    :mods => [npmod, player1],
     :allowed_idle => 300,
   }}
   let(:bot) {
@@ -63,6 +64,12 @@ RSpec.describe Cinch::Plugins::RebellionG54 do
 
   def msg(text, nick: player1, channel: channel1)
     make_message(bot, text, nick: nick, channel: channel)
+  end
+  def authed_msg(text, nick: player1, channel: channel1)
+    m = msg(text, nick: nick, channel: channel)
+    allow(m.user).to receive(:authed?).and_return(true)
+    allow(m.user).to receive(:authname).and_return(nick)
+    m
   end
 
   # Doh this sucks.
@@ -190,6 +197,22 @@ RSpec.describe Cinch::Plugins::RebellionG54 do
         replies = get_replies_text(msg('!roles'))
         expect(replies).to_not be_empty
         expect(replies.first).to be =~ /Game.*roles/
+      end
+    end
+
+    describe 'peek' do
+      it 'calls a playing mod a cheater' do
+        expect(get_replies_text(authed_msg('!peek', nick: player1))).to be == ['Cheater!!!']
+      end
+
+      it 'does not respond to a non-mod' do
+        expect(get_replies_text(authed_msg('!peek', nick: player2))).to be_empty
+      end
+
+      it 'shows info to a non-playing mod' do
+        replies = get_replies_text(authed_msg("!peek #{channel1}", nick: npmod))
+        expect(replies).to_not be_empty
+        expect(replies).to_not be_any { |x| x =~ /cheater/i }
       end
     end
   end
