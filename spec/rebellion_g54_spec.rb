@@ -92,9 +92,6 @@ RSpec.describe Cinch::Plugins::RebellionG54 do
       join(msg('!join'))
       join(msg('!join', nick: player2))
       allow(plugin).to receive(:Channel).with(channel1).and_return(chan)
-      games = plugin.instance_variable_get(:@games)
-      game = games[channel1]
-      game.each_player.each { |p| allow(p.user).to receive(:send) { |x| players[p.user.name].messages << x } }
       get_replies(msg('!start'))
     end
 
