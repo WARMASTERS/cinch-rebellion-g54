@@ -13,9 +13,11 @@ def get_replies_text(m)
 end
 
 class MessageReceiver
+  attr_reader :name
   attr_accessor :messages
 
-  def initialize
+  def initialize(name)
+    @name = name
     @messages = []
   end
 
@@ -32,12 +34,13 @@ end
 RSpec.describe Cinch::Plugins::RebellionG54 do
   include Cinch::Test
 
-  let(:chan) { MessageReceiver.new }
   let(:channel1) { '#test' }
+  let(:chan) { MessageReceiver.new(channel1) }
   let(:player1) { 'test1' }
   let(:player2) { 'test2' }
-  let(:user1) { MessageReceiver.new }
-  let(:user2) { MessageReceiver.new }
+  let(:npmod) { 'npmod' }
+  let(:user1) { MessageReceiver.new(player1) }
+  let(:user2) { MessageReceiver.new(player2) }
   let(:players) { {
     player1 => user1,
     player2 => user2,
