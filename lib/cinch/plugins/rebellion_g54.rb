@@ -37,7 +37,7 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
     end
 
     def new_cards(user)
-      @bot.tell_cards(@game, user)
+      @bot.tell_cards(@game, user: user)
     end
 
     def puts(msg)
@@ -100,8 +100,9 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
     @user_games.delete(user)
   end
 
-  def tell_cards(game, user)
-    player = game.find_player(user)
+  def tell_cards(game, user: nil, player: nil)
+    player ||= game.find_player(user)
+    user ||= player.user
     user.send("Game #{game.id} Turn #{game.turn_number}: #{player_info(player, show_secrets: true)}")
   end
 
@@ -153,7 +154,7 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
   def whoami(m)
     game = self.game_of(m)
     return unless game && game.started? && game.has_player?(m.user)
-    tell_cards(game, m.user)
+    tell_cards(game, user: m.user)
   end
 
   def table(m, channel_name = nil)
