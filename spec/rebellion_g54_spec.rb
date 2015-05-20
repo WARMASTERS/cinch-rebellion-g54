@@ -54,8 +54,8 @@ RSpec.describe Cinch::Plugins::RebellionG54 do
   }
   let(:plugin) { bot.plugins.first }
 
-  def msg(text, nick: player1)
-    make_message(bot, text, nick: nick, channel: channel1)
+  def msg(text, nick: player1, channel: channel1)
+    make_message(bot, text, nick: nick, channel: channel)
   end
 
   # Doh this sucks.
