@@ -5,7 +5,11 @@ require 'cinch/test'
 require 'cinch/plugins/rebellion_g54'
 
 def get_replies_text(m)
-  get_replies(m).map(&:text)
+  replies = get_replies(m)
+  # If you wanted, you could read all the messages as they come, but that might be a bit much.
+  # You'd want to check the messages of user1, user2, and chan as well.
+  # replies.each { |x| puts(x.text) }
+  replies.map(&:text)
 end
 
 class MessageReceiver
