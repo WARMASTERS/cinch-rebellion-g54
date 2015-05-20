@@ -65,9 +65,7 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
     Channel(game.channel_name).send("Player order is #{order}")
 
     # Tell everyone of their initial stuff
-    game.each_player.each { |player|
-      player.user.send("Game #{game.id} starting hand: #{player_info(player, show_secrets: true)}")
-    }
+    game.each_player.each { |player| tell_cards(game, player: player, game_start: true) }
 
     game.output_streams << ChannelOutputter.new(self, game, Channel(game.channel_name))
     announce_decision(game)
@@ -100,10 +98,11 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
     @user_games.delete(user)
   end
 
-  def tell_cards(game, user: nil, player: nil)
+  def tell_cards(game, user: nil, player: nil, game_start: false)
     player ||= game.find_player(user)
     user ||= player.user
-    user.send("Game #{game.id} Turn #{game.turn_number}: #{player_info(player, show_secrets: true)}")
+    turn = game_start ? 'starting hand' : "Turn #{game.turn_number}"
+    user.send("Game #{game.id} #{turn}: #{player_info(player, show_secrets: true)}")
   end
 
   #--------------------------------------------------------------------------------
