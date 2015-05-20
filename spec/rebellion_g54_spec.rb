@@ -21,6 +21,12 @@ class MessageReceiver
     @messages = []
   end
 
+  def send(m)
+    @messages << m
+  end
+end
+
+class TestChannel < MessageReceiver
   def voiced
     []
   end
@@ -28,17 +34,13 @@ class MessageReceiver
   end
   def moderated=(_)
   end
-
-  def send(m)
-    @messages << m
-  end
 end
 
 RSpec.describe Cinch::Plugins::RebellionG54 do
   include Cinch::Test
 
   let(:channel1) { '#test' }
-  let(:chan) { MessageReceiver.new(channel1) }
+  let(:chan) { TestChannel.new(channel1) }
   let(:player1) { 'test1' }
   let(:player2) { 'test2' }
   let(:npmod) { 'npmod' }
