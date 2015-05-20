@@ -87,6 +87,15 @@ RSpec.describe Cinch::Plugins::RebellionG54 do
     expect(bot).to be_a(Cinch::Bot)
   end
 
+  it 'does not start a game with bogus roles' do
+    join(msg('!join'))
+    join(msg('!join', nick: player2))
+    get_replies(msg('!roles -banker'))
+    expect(get_replies_text(msg('!start'))).to be == [
+      "#{player1}: Need 5 roles instead of 4"
+    ]
+  end
+
   context 'in a game' do
     before :each do
       join(msg('!join'))
