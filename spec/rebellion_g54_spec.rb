@@ -85,8 +85,65 @@ RSpec.describe Cinch::Plugins::RebellionG54 do
       get_replies(msg('!start'))
     end
 
-    it 'says hi' do
-      puts "HI"
+    # This is fragile but I can't do much better?
+    let(:player_order) {
+      get_replies_text(msg('!who')).map { |text|
+        text.gsub(8203.chr('UTF-8'), '')
+      }.find { |text|
+        # Doing this to filter out the "not a valid choice" that we might get.
+        text.include?(player1) && text.include?(player2)
+      }.split
+    }
+    # Here, p1 and p2 mean original player order, not related to player1/player2
+    let(:p1) { player_order.first }
+    let(:p2) { player_order.last }
+
+    it 'has a sane player order' do
+      expect([p1, p2]).to match_array([player1, player2])
+    end
+
+    context 'playing the game' do
+      before(:each) do
+        3.times do
+          get_replies(msg('!banker', nick: p1))
+          get_replies(msg('!pass', nick: p2))
+          get_replies(msg('!income', nick: p2))
+        end
+        get_replies(msg("!coup #{p2}", nick: p1))
+        get_replies(msg("!lose1", nick: p2))
+        # p1 at 4 coins, p2 at 5 coins
+        get_replies(msg("!income", nick: p2))
+        get_replies(msg('!banker', nick: p1))
+        get_replies(msg('!pass', nick: p2))
+        get_replies(msg('!income', nick: p2))
+        # p1 can win by using coup next turn
+      end
+
+      it 'can end the game' do
+        chan.messages.clear
+        # We don't get replies to this; they're just sent to the channel
+        get_replies(msg("!coup #{p2}", nick: p1))
+        expect(chan.messages).to be_any { |x| x.include?('winner') }
+      end
+
+      context 'after game has ended' do
+        before(:each) { get_replies(msg("!coup #{p2}", nick: p1)) }
+
+        # OKAY, fine, these aren't actually joining the game,
+        # but it checks the important part that I want to check:
+        # the bot doesn't think the users are still in a game
+        # If the bot did think that, it would reject with a different message
+
+        it 'lets the winner join the next game' do
+          replies = get_replies_text(msg('!join', nick: p1))
+          expect(replies.first).to be =~ /need to be in .* to join/
+        end
+
+        it 'lets the loser join the next game' do
+          replies = get_replies_text(msg('!join', nick: p2))
+          expect(replies.first).to be =~ /need to be in .* to join/
+        end
+      end
     end
   end
 
