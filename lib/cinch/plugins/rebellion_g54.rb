@@ -8,6 +8,7 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
 
   xmatch(/choices/i, method: :choices, group: :rebellion_g54)
   xmatch(/me\s*$/i, method: :whoami, group: :rebellion_g54)
+  xmatch(/whoami/i, method: :whoami, group: :rebellion_g54)
   xmatch(/table(?:\s+(##?\w+))?/i, method: :table, group: :rebellion_g54)
   xmatch(/status/i, method: :status, group: :rebellion_g54)
 
