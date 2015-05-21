@@ -236,6 +236,40 @@ RSpec.describe Cinch::Plugins::RebellionG54 do
     end
   end
 
+  describe 'get_settings' do
+    it '!settings shows settings' do
+      replies = get_replies_text(msg('!settings'))
+      expect(replies).to_not be_empty
+      expect(replies.first).to include('Synchronous challenges')
+    end
+  end
+
+  describe 'set_settings' do
+    it '!settings +sync sets sync on' do
+      replies = get_replies_text(msg('!settings +sync'))
+      expect(replies).to_not be_empty
+      expect(replies.first).to include('Synchronous challenges: true')
+    end
+
+    it '!settings -sync sets sync off' do
+      replies = get_replies_text(msg('!settings -sync'))
+      expect(replies).to_not be_empty
+      expect(replies.first).to include('Synchronous challenges: false')
+    end
+
+    it '!settings +cheese complains about unknown' do
+      replies = get_replies_text(msg('!settings +cheese'))
+      expect(replies).to_not be_empty
+      expect(replies.first).to include('unknown')
+    end
+
+    it '!settings bogus complains about unknown' do
+      replies = get_replies_text(msg('!settings bogus'))
+      expect(replies).to_not be_empty
+      expect(replies.first).to include('unknown')
+    end
+  end
+
   describe 'get_roles' do
     it '!roles shows roles' do
       replies = get_replies_text(msg('!roles'))

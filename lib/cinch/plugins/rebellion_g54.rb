@@ -15,6 +15,9 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
   xmatch(/help(?: (.+))?/i, method: :help, group: :rebellion_g54)
   xmatch(/rules/i, method: :rules, group: :rebellion_g54)
 
+  xmatch(/settings(?:\s+(##?\w+))?$/i, method: :get_settings, group: :rebellion_g54)
+  xmatch(/settings(?:\s+(##?\w+))? (.+)$/i, method: :set_settings, group: :rebellion_g54)
+
   xmatch(/roles\s+list/i, method: :list_possible_roles, group: :rebellion_g54)
   xmatch(/roles(?:\s+(##?\w+))?$/i, method: :get_roles, group: :rebellion_g54)
   xmatch(/roles(?:\s+(##?\w+))?\s+random(?:\s+(.+))?/i, method: :random_roles, group: :rebellion_g54)
@@ -242,6 +245,38 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
     m.reply(::RebellionG54::Role::ALL.keys.map(&:to_s))
   end
 
+  def get_settings(m, channel_name = nil)
+    game = self.game_of(m, channel_name, ['see settings', '!settings'])
+    return unless game
+
+    m.reply("Game #{game.id} - Synchronous challenges: #{game.synchronous_challenges}")
+  end
+
+  def set_settings(m, channel_name = nil, spec = '')
+    game = self.game_of(m, channel_name, ['change settings', '!settings'])
+    return unless game && !game.started?
+
+    unknown = []
+    spec.split.each { |s|
+      if s[0] == '+'
+        desire = true
+      elsif s[0] == '-'
+        desire = false
+      else
+        unknown << s
+      end
+      case s[1..-1]
+      when 'sync'
+        game.synchronous_challenges = desire
+      else
+        unknown << s[1..-1]
+      end
+    }
+
+    m.reply("These settings are unknown: #{unknown}") unless unknown.empty?
+    m.reply("Game #{game.id} - Synchronous challenges: #{game.synchronous_challenges}")
+  end
+
   def get_roles(m, channel_name = nil)
     game = self.game_of(m, channel_name, ['see roles', '!roles'])
     return unless game
@@ -341,6 +376,7 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
       m.reply("Game commands: table (everyone's cards and coins), status (whose turn is it?)")
       m.reply('Game commands: me (your characters), choices (your current choices)')
     when '3'
+      m.reply('One challenger at a time: settings +sync. Everyone challenges at once: settings -sync')
       m.reply('Getting people to play: invite, subscribe, unsubscribe')
       m.reply('To get PRIVMSG: notice off. To get NOTICE: notice on')
     else
