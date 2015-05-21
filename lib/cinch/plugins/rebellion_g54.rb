@@ -204,14 +204,21 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
   end
 
   def table_info(game, show_secrets: false)
-    "Game #{game.id} Turn #{game.turn_number} - #{game.roles}\n" + game.each_player.map { |player|
-      "#{player.user.name}: #{player_info(player, show_secrets: show_secrets)}"
+    role_tokens = game.role_tokens
+    roles = game.roles.map { |r|
+      tokens = role_tokens[r] || []
+      tokens_str = (tokens.empty? ? '' : " (#{tokens.map { |t| t.to_s.capitalize }.join(', ')})")
+      "#{::RebellionG54::Role.to_s(r)}#{tokens_str}"
+    }.join(', ')
+    player_tokens = game.player_tokens
+    "Game #{game.id} Turn #{game.turn_number} - #{roles}\n" + game.each_player.map { |player|
+      "#{player.user.name}: #{player_info(player, show_secrets: show_secrets, tokens: player_tokens[player.user])}"
     }.concat(game.each_dead_player.map { |player|
       "#{player.user.name}: #{player_info(player, show_secrets: show_secrets)}"
     }).join("\n")
   end
 
-  def player_info(player, show_secrets: false)
+  def player_info(player, show_secrets: false, tokens: [])
     cards = []
     cards.concat(player.each_live_card.map { |c|
       "(#{show_secrets ? ::RebellionG54::Role.to_s(c.role) : '########'})"
@@ -222,7 +229,8 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
     cards.concat(player.each_revealed_card.map { |c|
       "[#{::RebellionG54::Role.to_s(c.role)}]"
     })
-    "#{cards.join(' ')} - #{player.influence > 0 ? "Coins: #{player.coins}" : 'ELIMINATED'}"
+    token_str = tokens.empty? ? '' : " - #{tokens.map { |t| t.to_s.capitalize }.join(', ')}"
+    "#{cards.join(' ')} - #{player.influence > 0 ? "Coins: #{player.coins}" : 'ELIMINATED'}#{token_str}"
   end
 
   #--------------------------------------------------------------------------------
