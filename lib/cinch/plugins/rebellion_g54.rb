@@ -282,8 +282,8 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
     chooser = Chooser.new
     spec.each_char { |c|
       case c.downcase
-      when '-'; chooser.advanced_only!
-      when '+'; chooser.basic_only!
+      when '+'; chooser.advanced_only!
+      when '-'; chooser.basic_only!
       when 'c'; chooser.pick(:communications)
       when '$'; chooser.pick(:finance)
       when 'f'; chooser.pick(:force)
