@@ -73,7 +73,6 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
 
   def do_reset_game(game)
     chan = Channel(game.channel_name)
-    chan.send("Game #{game.id} Turn #{game.turn_number} - #{game.roles}")
     info = table_info(game, show_secrets: true)
     chan.send(info)
   end
@@ -159,7 +158,6 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
     game = self.game_of(m, channel_name, ['see a game', '!table'])
     return unless game && game.started?
 
-    m.reply("Game #{game.id} Turn #{game.turn_number} - #{game.roles}")
     info = table_info(game)
     m.reply(info)
   end
@@ -190,7 +188,6 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
       return
     end
 
-    m.user.send("Game #{game.id} Turn #{game.turn_number} - #{game.roles}")
     info = table_info(game, show_secrets: true)
     m.user.send(info)
   end
@@ -207,7 +204,7 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
   end
 
   def table_info(game, show_secrets: false)
-    game.each_player.map { |player|
+    "Game #{game.id} Turn #{game.turn_number} - #{game.roles}\n" + game.each_player.map { |player|
       "#{player.user.name}: #{player_info(player, show_secrets: show_secrets)}"
     }.concat(game.each_dead_player.map { |player|
       "#{player.user.name}: #{player_info(player, show_secrets: show_secrets)}"
