@@ -202,7 +202,7 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
   def decision_info(game, show_choices: false)
     desc = game.decision_description
     players = game.choice_names.keys
-    choices = show_choices ? "To pick between #{game.choice_names.values.flatten.uniq.join(', ')}" : ''
+    choices = show_choices ? " to pick between #{game.choice_names.values.flatten.uniq.join(', ')}" : ''
     "Game #{game.id} Turn #{game.turn_number} - #{desc} - Waiting on #{players.join(', ')}#{choices}"
   end
 
