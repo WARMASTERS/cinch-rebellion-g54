@@ -124,7 +124,8 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
     game = self.game_of(m)
     return unless game && game.started? && game.has_player?(m.user)
 
-    success, error = game.take_choice(m.user, command, args || '')
+    args = args ? args.split : []
+    success, error = game.take_choice(m.user, command, *args)
 
     if success
       if game.winner
