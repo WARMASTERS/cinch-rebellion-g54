@@ -6,26 +6,26 @@ require 'rebellion_g54/role'
 module Cinch; module Plugins; class RebellionG54 < GameBot
   include Cinch::Plugin
 
-  xmatch(/choices/i, method: :choices, group: :rebellion_g54)
-  xmatch(/me\s*$/i, method: :whoami, group: :rebellion_g54)
-  xmatch(/whoami/i, method: :whoami, group: :rebellion_g54)
-  xmatch(/table(?:\s+(##?\w+))?/i, method: :table, group: :rebellion_g54)
-  xmatch(/status/i, method: :status, group: :rebellion_g54)
+  match(/choices/i, method: :choices, group: :rebellion_g54)
+  match(/me\s*$/i, method: :whoami, group: :rebellion_g54)
+  match(/whoami/i, method: :whoami, group: :rebellion_g54)
+  match(/table(?:\s+(##?\w+))?/i, method: :table, group: :rebellion_g54)
+  match(/status/i, method: :status, group: :rebellion_g54)
 
-  xmatch(/help(?: (.+))?/i, method: :help, group: :rebellion_g54)
-  xmatch(/rules/i, method: :rules, group: :rebellion_g54)
+  match(/help(?: (.+))?/i, method: :help, group: :rebellion_g54)
+  match(/rules/i, method: :rules, group: :rebellion_g54)
 
-  xmatch(/settings(?:\s+(##?\w+))?$/i, method: :get_settings, group: :rebellion_g54)
-  xmatch(/settings(?:\s+(##?\w+))? (.+)$/i, method: :set_settings, group: :rebellion_g54)
+  match(/settings(?:\s+(##?\w+))?$/i, method: :get_settings, group: :rebellion_g54)
+  match(/settings(?:\s+(##?\w+))? (.+)$/i, method: :set_settings, group: :rebellion_g54)
 
-  xmatch(/roles\s+list/i, method: :list_possible_roles, group: :rebellion_g54)
-  xmatch(/roles(?:\s+(##?\w+))?$/i, method: :get_roles, group: :rebellion_g54)
-  xmatch(/roles(?:\s+(##?\w+))?\s+random(?:\s+(.+))?/i, method: :random_roles, group: :rebellion_g54)
-  xmatch(/roles(?:\s+(##?\w+))? (.+)$/i, method: :set_roles, group: :rebellion_g54)
+  match(/roles\s+list/i, method: :list_possible_roles, group: :rebellion_g54)
+  match(/roles(?:\s+(##?\w+))?$/i, method: :get_roles, group: :rebellion_g54)
+  match(/roles(?:\s+(##?\w+))?\s+random(?:\s+(.+))?/i, method: :random_roles, group: :rebellion_g54)
+  match(/roles(?:\s+(##?\w+))? (.+)$/i, method: :set_roles, group: :rebellion_g54)
 
-  xmatch(/peek(?:\s+(##?\w+))?/i, method: :peek, group: :rebellion_g54)
+  match(/peek(?:\s+(##?\w+))?/i, method: :peek, group: :rebellion_g54)
 
-  xmatch(/(\S+)(?:\s+(.*))?/, method: :rebellion_g54, group: :rebellion_g54)
+  match(/(\S+)(?:\s+(.*))?/, method: :rebellion_g54, group: :rebellion_g54)
 
   common_commands
 
