@@ -149,7 +149,7 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
     if explanations.empty?
       m.user.send("You don't need to make any choices right now.")
     else
-      send_choice_explanations(explanations, m.user)
+      send_choice_explanations(explanations, m.user, show_unavailable: true)
     end
   end
 
@@ -201,11 +201,11 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
   # Help for player/table info
   #--------------------------------------------------------------------------------
 
-  def send_choice_explanations(explanations, user)
+  def send_choice_explanations(explanations, user, show_unavailable: false)
     available, unavailable = explanations.to_a.partition { |_, info| info[:available] }
     user.send(available.map { |label, info| "[#{label}: #{info[:description]}]" }.join(' '))
 
-    return if unavailable.empty?
+    return unless show_unavailable && !unavailable.empty?
 
     user.send('Unavailable: ' + unavailable.map { |label, info|
       "[#{label}: #{info[:description]} - #{info[:why_unavailable]}]"
