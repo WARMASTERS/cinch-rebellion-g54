@@ -202,9 +202,14 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
   #--------------------------------------------------------------------------------
 
   def send_choice_explanations(explanations, user)
-    user.send(explanations.to_a.map { |label, info|
-      info[:available] ? "[#{label}: #{info[:description]}]": "[#{label} (unavailable): #{info[:why_unavailable]}]"
-    })
+    available, unavailable = explanations.to_a.partition { |_, info| info[:available] }
+    user.send(available.map { |label, info| "[#{label}: #{info[:description]}]" }.join(' '))
+
+    return if unavailable.empty?
+
+    user.send('Unavailable: ' + unavailable.map { |label, info|
+      "[#{label}: #{info[:description]} - #{info[:why_unavailable]}]"
+    }.join(' '))
   end
 
   def decision_info(game, show_choices: false)
