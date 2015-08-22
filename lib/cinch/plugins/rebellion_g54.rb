@@ -115,8 +115,8 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
   def announce_decision(game)
     Channel(game.channel_name).send(decision_info(game, show_choices: true))
     game.choice_names.keys.each { |p|
-      explanations = format_choice_explanations(game, p)
-      User(p).send(explanations.map { |e| "[#{e}]" }.join(' '))
+      explanations = game.choice_explanations(p)
+      send_choice_explanations(explanations, p)
     }
   end
 
@@ -145,11 +145,11 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
   def choices(m)
     game = self.game_of(m)
     return unless game && game.started? && game.has_player?(m.user)
-    explanations = format_choice_explanations(game, m.user)
+    explanations = game.choice_explanations(m.user)
     if explanations.empty?
       m.user.send("You don't need to make any choices right now.")
     else
-      m.user.send(explanations.map { |e| "[#{e}]" }.join(' '))
+      send_choice_explanations(explanations, m.user)
     end
   end
 
@@ -201,11 +201,10 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
   # Help for player/table info
   #--------------------------------------------------------------------------------
 
-  def format_choice_explanations(game, user)
-    explanations = game.choice_explanations(user)
-    explanations.to_a.map { |label, info|
-      info[:available] ? "#{label}: #{info[:description]}": "#{label} (unavailable): #{info[:why_unavailable]}"
-    }
+  def send_choice_explanations(explanations, user)
+    user.send(explanations.to_a.map { |label, info|
+      info[:available] ? "[#{label}: #{info[:description]}]": "[#{label} (unavailable): #{info[:why_unavailable]}]"
+    })
   end
 
   def decision_info(game, show_choices: false)
