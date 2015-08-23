@@ -402,6 +402,19 @@ RSpec.describe Cinch::Plugins::RebellionG54 do
       expect(replies3).to_not be_empty
       expect(help_replies).to_not be == replies3
     end
+
+    it 'responds differently to !help mod from a mod' do
+      replies_mod = get_replies_text(authed_msg('!help mod', nick: player1))
+      expect(replies_mod).to_not be_empty
+      expect(help_replies).to_not be == replies_mod
+    end
+
+    it 'responds like !help to !help mod from a non-mod' do
+      replies_normal = get_replies_text(authed_msg('!help', nick: player2))
+      replies_mod2 = get_replies_text(authed_msg('!help mod', nick: player2))
+      expect(replies_mod2).to_not be_empty
+      expect(replies_normal).to be == replies_mod2
+    end
   end
 
   describe 'rules' do

@@ -382,7 +382,11 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
 
   def help(m, page = '')
     page ||= ''
+    page = '' if page.strip.downcase == 'mod' && !self.is_mod?(m.user)
     case page.strip.downcase
+    when 'mod'
+      m.reply('Cheating: peek')
+      m.reply('Game admin: kick, reset, replace')
     when '2'
       m.reply('Roles: roles (view current), roles list (list all supported), roles random, roles +add -remove')
       m.reply("Game commands: table (everyone's cards and coins), status (whose turn is it?)")
