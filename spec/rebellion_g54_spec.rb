@@ -44,12 +44,6 @@ RSpec.describe Cinch::Plugins::RebellionG54 do
   let(:player1) { 'test1' }
   let(:player2) { 'test2' }
   let(:npmod) { 'npmod' }
-  let(:user1) { MessageReceiver.new(player1) }
-  let(:user2) { MessageReceiver.new(player2) }
-  let(:players) { {
-    player1 => user1,
-    player2 => user2,
-  }}
 
   let(:opts) {{
     :channels => [channel1],
