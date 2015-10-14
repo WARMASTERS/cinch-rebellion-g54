@@ -85,10 +85,6 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
     tell_cards(game, replacing_user) if game.started?
   end
 
-  def bg3po_invite_command(channel_name)
-    # Nah, I don't want to do bg3po
-  end
-
   #--------------------------------------------------------------------------------
   # Other player management
   #--------------------------------------------------------------------------------
