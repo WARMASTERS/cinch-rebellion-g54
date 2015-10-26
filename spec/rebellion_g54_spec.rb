@@ -4,6 +4,11 @@ SimpleCov.start { add_filter '/spec/' }
 require 'cinch/test'
 require 'cinch/plugins/rebellion_g54'
 
+RSpec.configure { |c|
+  c.warnings = true
+  c.disable_monkey_patching!
+}
+
 def get_replies_text(m)
   replies = get_replies(m)
   # If you wanted, you could read all the messages as they come, but that might be a bit much.
