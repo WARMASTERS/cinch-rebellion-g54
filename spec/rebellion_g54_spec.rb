@@ -57,12 +57,7 @@ RSpec.describe Cinch::Plugins::RebellionG54 do
     :allowed_idle => 300,
   }}
   let(:bot) {
-    b = make_bot(described_class, opts) { |c|
-      self.loggers.first.level = :warn
-    }
-    # No, c.nick = 'testbot' doesn't work because... isupport?
-    allow(b).to receive(:nick).and_return('testbot')
-    b
+    make_bot(described_class, opts) { |c| self.loggers.first.level = :warn }
   }
   let(:plugin) { bot.plugins.first }
 
