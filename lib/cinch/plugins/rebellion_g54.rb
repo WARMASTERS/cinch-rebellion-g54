@@ -29,6 +29,8 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
 
   add_common_commands
 
+  IGNORED_COMMANDS = COMMON_COMMANDS.dup.delete('join').freeze
+
   class ChannelOutputter
     def initialize(bot, game, c)
       @bot = bot
@@ -117,6 +119,9 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
   end
 
   def rebellion_g54(m, command, args = '')
+    # Don't invoke rebellion_g54 catchall for !who, for example.
+    return if IGNORED_COMMANDS.include?(command.downcase)
+
     game = self.game_of(m)
     return unless game && game.started? && game.has_player?(m.user)
 
