@@ -27,7 +27,7 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
 
   match(/(\S+)(?:\s+(.*))?/, method: :rebellion_g54, group: :rebellion_g54)
 
-  common_commands
+  add_common_commands
 
   class ChannelOutputter
     def initialize(bot, game, c)
