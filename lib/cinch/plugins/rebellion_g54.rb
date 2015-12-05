@@ -10,7 +10,6 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
   match(/me\s*$/i, method: :whoami, group: :rebellion_g54)
   match(/whoami/i, method: :whoami, group: :rebellion_g54)
   match(/table(?:\s+(##?\w+))?/i, method: :table, group: :rebellion_g54)
-  match(/status/i, method: :status, group: :rebellion_g54)
 
   match(/help(?: (.+))?/i, method: :help, group: :rebellion_g54)
   match(/rules/i, method: :rules, group: :rebellion_g54)
@@ -85,6 +84,10 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
 
   def do_replace_user(game, replaced_user, replacing_user)
     tell_cards(game, replacing_user)
+  end
+
+  def game_status(game)
+    decision_info(game)
   end
 
   #--------------------------------------------------------------------------------
@@ -166,23 +169,6 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
 
     info = table_info(game)
     m.reply(info)
-  end
-
-  def status(m)
-    game = self.game_of(m)
-    return unless game
-
-    if !game.started?
-      waiting_room = @waiting_rooms[game.channel_name]
-      if waiting_room.size == 0
-        m.reply('No game in progress. Join and start one!')
-      else
-        m.reply("A game is forming. #{waiting_room.size} players have joined: #{waiting_room.users.map(&:name).join(', ')}")
-      end
-      return
-    end
-
-    m.reply(decision_info(game))
   end
 
   def peek(m, channel_name = nil)
