@@ -59,8 +59,8 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
     ::RebellionG54::Game
   end
 
-  def do_start_game(m, game, options)
-    success, error = game.start_game
+  def do_start_game(m, game, players, options)
+    success, error = game.start_game(players.map(&:user))
     unless success
       m.reply(error, true)
       return
@@ -84,7 +84,7 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
   end
 
   def do_replace_user(game, replaced_user, replacing_user)
-    tell_cards(game, replacing_user) if game.started?
+    tell_cards(game, replacing_user)
   end
 
   #--------------------------------------------------------------------------------
@@ -123,7 +123,7 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
     return if IGNORED_COMMANDS.include?(command.downcase)
 
     game = self.game_of(m)
-    return unless game && game.started? && game.has_player?(m.user)
+    return unless game && game.started? && game.users.include?(m.user)
 
     args = args ? args.split : []
     success, error = game.take_choice(m.user, command, *args)
@@ -145,7 +145,7 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
 
   def choices(m)
     game = self.game_of(m)
-    return unless game && game.started? && game.has_player?(m.user)
+    return unless game && game.started? && game.users.include?(m.user)
     explanations = game.choice_explanations(m.user)
     if explanations.empty?
       m.user.send("You don't need to make any choices right now.")
@@ -156,7 +156,7 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
 
   def whoami(m)
     game = self.game_of(m)
-    return unless game && game.started? && game.has_player?(m.user)
+    return unless game && game.started? && game.users.include?(m.user)
     tell_cards(game, user: m.user)
   end
 
@@ -173,10 +173,11 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
     return unless game
 
     if !game.started?
-      if game.size == 0
+      waiting_room = @waiting_rooms[game.channel_name]
+      if waiting_room.size == 0
         m.reply('No game in progress. Join and start one!')
       else
-        m.reply("A game is forming. #{game.size} players have joined: #{game.users.map(&:name).join(', ')}")
+        m.reply("A game is forming. #{waiting_room.size} players have joined: #{waiting_room.users.map(&:name).join(', ')}")
       end
       return
     end
@@ -189,7 +190,7 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
     game = self.game_of(m, channel_name, ['peek', '!peek'])
     return unless game && game.started?
 
-    if game.has_player?(m.user)
+    if game.users.include?(m.user)
       m.user.send('Cheater!!!')
       return
     end
