@@ -86,7 +86,7 @@ RSpec.describe Cinch::Plugins::RebellionG54 do
     join(msg('!join', nick: player2))
     get_replies(msg('!roles -banker'))
     expect(get_replies_text(msg('!start'))).to be == [
-      "#{player1}: Need 5 roles instead of 4"
+      "#{player1}: Failed to start game because Need 5 roles instead of 4"
     ]
   end
 
@@ -234,7 +234,7 @@ RSpec.describe Cinch::Plugins::RebellionG54 do
     it '!settings shows settings' do
       replies = get_replies_text(msg('!settings'))
       expect(replies).to_not be_empty
-      expect(replies.first).to include('Synchronous challenges')
+      expect(replies.first).to include('synchronous challenges')
     end
   end
 
@@ -242,13 +242,13 @@ RSpec.describe Cinch::Plugins::RebellionG54 do
     it '!settings +sync sets sync on' do
       replies = get_replies_text(msg('!settings +sync'))
       expect(replies).to_not be_empty
-      expect(replies.first).to include('Synchronous challenges: true')
+      expect(replies.first).to include('synchronous challenges: true')
     end
 
     it '!settings -sync sets sync off' do
       replies = get_replies_text(msg('!settings -sync'))
       expect(replies).to_not be_empty
-      expect(replies.first).to include('Synchronous challenges: false')
+      expect(replies.first).to include('synchronous challenges: false')
     end
 
     it '!settings +cheese complains about unknown' do

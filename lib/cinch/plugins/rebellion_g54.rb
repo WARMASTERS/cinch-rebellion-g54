@@ -29,6 +29,7 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
   add_common_commands
 
   IGNORED_COMMANDS = COMMON_COMMANDS.dup.delete('join').freeze
+  DEFAULT_ROLES = %i(banker director guerrilla peacekeeper politician).freeze
 
   class ChannelOutputter
     def initialize(bot, game, c)
@@ -58,10 +59,14 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
     ::RebellionG54::Game
   end
 
-  def do_start_game(m, game, players, options)
-    success, error = game.start_game(players.map(&:user))
-    unless success
-      m.reply(error, true)
+  def do_start_game(m, channel_name, players, settings, start_args)
+    begin
+      opts = {}
+      opts[:synchronous_challenges] = settings[:synchronous_challenges] if settings.has_key?(:synchronous_challenges)
+      roles = settings[:roles] || DEFAULT_ROLES
+      game = ::RebellionG54::Game.new(channel_name, players.map(&:user), roles, **opts)
+    rescue => e
+      m.reply("Failed to start game because #{e}", true)
       return
     end
 
@@ -74,6 +79,7 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
 
     game.output_streams << ChannelOutputter.new(self, game, Channel(game.channel_name))
     announce_decision(game)
+    game
   end
 
   def do_reset_game(game)
@@ -126,7 +132,7 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
     return if IGNORED_COMMANDS.include?(command.downcase)
 
     game = self.game_of(m)
-    return unless game && game.started? && game.users.include?(m.user)
+    return unless game && game.users.include?(m.user)
 
     args = args ? args.split : []
     success, error = game.take_choice(m.user, command, *args)
@@ -148,7 +154,7 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
 
   def choices(m)
     game = self.game_of(m)
-    return unless game && game.started? && game.users.include?(m.user)
+    return unless game && game.users.include?(m.user)
     explanations = game.choice_explanations(m.user)
     if explanations.empty?
       m.user.send("You don't need to make any choices right now.")
@@ -159,13 +165,13 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
 
   def whoami(m)
     game = self.game_of(m)
-    return unless game && game.started? && game.users.include?(m.user)
+    return unless game && game.users.include?(m.user)
     tell_cards(game, user: m.user)
   end
 
   def table(m, channel_name = nil)
     game = self.game_of(m, channel_name, ['see a game', '!table'])
-    return unless game && game.started?
+    return unless game
 
     info = table_info(game)
     m.reply(info)
@@ -174,7 +180,7 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
   def peek(m, channel_name = nil)
     return unless self.is_mod?(m.user)
     game = self.game_of(m, channel_name, ['peek', '!peek'])
-    return unless game && game.started?
+    return unless game
 
     if game.users.include?(m.user)
       m.user.send('Cheater!!!')
@@ -246,15 +252,18 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
   end
 
   def get_settings(m, channel_name = nil)
-    game = self.game_of(m, channel_name, ['see settings', '!settings'])
-    return unless game
+    if (game = self.game_of(m, channel_name))
+      m.reply("Game #{game.id} - Synchronous challenges: #{game.synchronous_challenges}")
+      return
+    end
 
-    m.reply("Game #{game.id} - Synchronous challenges: #{game.synchronous_challenges}")
+    waiting_room = self.waiting_room_of(m, channel_name, ['see settings', '!settings'])
+    m.reply("Next game will have synchronous challenges: #{waiting_room.settings[:synchronous_challenges]}")
   end
 
   def set_settings(m, channel_name = nil, spec = '')
-    game = self.game_of(m, channel_name, ['change settings', '!settings'])
-    return unless game && !game.started?
+    waiting_room = self.waiting_room_of(m, channel_name, ['change settings', '!settings'])
+    game = self.game_of(m, channel_name)
 
     unknown = []
     spec.split.each { |s|
@@ -267,21 +276,30 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
       end
       case s[1..-1]
       when 'sync'
-        game.synchronous_challenges = desire
+        game.synchronous_challenges = desire if game
+        waiting_room.settings[:synchronous_challenges] = desire
       else
         unknown << s[1..-1]
       end
     }
 
     m.reply("These settings are unknown: #{unknown}") unless unknown.empty?
-    m.reply("Game #{game.id} - Synchronous challenges: #{game.synchronous_challenges}")
+    if game
+      m.reply("Game #{game.id} - Synchronous challenges: #{game.synchronous_challenges}")
+    elsif
+      m.reply("Next game will have synchronous challenges: #{waiting_room.settings[:synchronous_challenges]}")
+    end
   end
 
   def get_roles(m, channel_name = nil)
-    game = self.game_of(m, channel_name, ['see roles', '!roles'])
-    return unless game
+    if (game = self.game_of(m, channel_name))
+      m.reply("Game #{game.id} roles: #{game.roles}")
+      return
+    end
 
-    m.reply("Game #{game.id} #{game.started? ? '' : "proposed #{game.roles.size} "}roles: #{game.roles}")
+    waiting_room = self.waiting_room_of(m, channel_name, ['see roles', '!roles'])
+    roles = waiting_room.settings[:roles] || DEFAULT_ROLES
+    m.reply("Next game proposed #{roles.size} roles: #{roles}")
   end
 
   class Chooser
@@ -311,8 +329,7 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
   end
 
   def random_roles(m, channel_name = nil, spec = '')
-    game = self.game_of(m, channel_name, ['change roles', '!roles'])
-    return unless game && !game.started?
+    waiting_room = self.waiting_room_of(m, channel_name, ['change roles', '!roles'])
 
     if !spec || spec.strip.empty?
       m.reply('C = communications, $ = finance, F = force, S = special interests, A = all. Prepend + for only advanced, - for only basic.')
@@ -333,16 +350,15 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
       end
     }
 
-    game.roles = chooser.roles
-    m.reply("Game #{game.id} now has #{game.roles.size} roles: #{game.roles}")
+    waiting_room.settings[:roles] = chooser.roles
+    m.reply("Next game will have #{chooser.roles.size} roles: #{chooser.roles}")
   end
 
   def set_roles(m, channel_name = nil, spec = '')
-    game = self.game_of(m, channel_name, ['change roles', '!roles'])
-    return unless game && !game.started?
+    waiting_room = self.waiting_room_of(m, channel_name, ['change roles', '!roles'])
     return if !spec || spec.strip.empty?
 
-    roles = game.roles
+    roles = waiting_room.settings[:roles] || DEFAULT_ROLES.dup
     unknown = []
     spec.split.each { |s|
       if s[0] == '+'
@@ -360,8 +376,9 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
     }
 
     m.reply("These roles are unknown: #{unknown}") unless unknown.empty?
-    game.roles = roles.uniq
-    m.reply("Game #{game.id} now has #{game.roles.size} roles: #{game.roles}")
+    roles.uniq!
+    waiting_room.settings[:roles] = roles
+    m.reply("Next game will have #{roles.size} roles: #{roles}")
   end
 
   #--------------------------------------------------------------------------------
