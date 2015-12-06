@@ -55,9 +55,9 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
   # Implementing classes should override these
   #--------------------------------------------------------------------------------
 
-  def game_class
-    ::RebellionG54::Game
-  end
+  def min_players; ::RebellionG54::Game::MIN_PLAYERS end
+  def max_players; ::RebellionG54::Game::MAX_PLAYERS end
+  def game_name; ::RebellionG54::Game::GAME_NAME end
 
   def do_start_game(m, channel_name, players, settings, start_args)
     begin
