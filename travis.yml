@@ -9,4 +9,4 @@ matrix:
     - rvm: '2.0'
     - rvm: '2.1'
     - rvm: '2.2'
-script: gem install cinch-test cinch simplecov rspec && git clone https://github.com/petertseng/cinch-game_bot && git clone https://github.com/petertseng/rebellion_g54 && rspec -I cinch-game_bot/lib -I rebellion_g54/lib
+script: bundle exec rspec
