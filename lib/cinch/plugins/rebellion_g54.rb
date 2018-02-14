@@ -64,7 +64,7 @@ module Cinch; module Plugins; class RebellionG54 < GameBot
       opts = {}
       opts[:synchronous_challenges] = settings[:synchronous_challenges] if settings.has_key?(:synchronous_challenges)
       roles = settings[:roles] || DEFAULT_ROLES
-      game = ::RebellionG54::Game.new(channel_name, players.map(&:user), roles, **opts)
+      game = ::RebellionG54::Game.new(channel_name, players.map(&:user), roles.dup, **opts)
     rescue => e
       m.reply("Failed to start game because #{e}", true)
       return
